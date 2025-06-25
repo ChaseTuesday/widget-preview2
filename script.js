@@ -30,10 +30,16 @@ async function classifyProduct() {
     const data = await response.json();
     loading.style.display = 'none';
 
-    resultBox.innerHTML = `<strong>Classification result</strong><br>
-      HTS code: ${data.hts_code}<br>
-      Confidence: ${data.confidence}%<br>
-      <em>${explainConfidence(data.confidence)}</em>`;
+    resultBox.innerHTML = `
+  <strong>Classification Result</strong><br><br>
+  <strong>HTS Code:</strong> ${data.hts_code}<br>
+  <strong>Duty:</strong> ${data.duty}%<br>
+  <strong>VAT:</strong> ${data.vat}%<br>
+  <strong>Total Landed Cost:</strong> $${data.total_cost}<br>
+  <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(1)}%<br>
+  <em>${explainConfidence(data.confidence)}</em><br><br>
+  <strong>Rationale:</strong><br>${data.rationale}
+`;
   } catch (error) {
     loading.style.display = 'none';
     console.error("API call failed:", error);
