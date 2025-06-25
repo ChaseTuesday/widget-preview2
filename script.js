@@ -1,43 +1,48 @@
-
-document.getElementById('classificationForm').addEventListener('submit', async function(e) {
+document.getElementById('emailForm').addEventListener('submit', function(e) {
   e.preventDefault();
+  const email = document.getElementById('email').value;
+  console.log("Captured email (dev mode):", email);
 
-  const description = document.getElementById('description').value.trim();
+  document.getElementById('emailForm').style.display = 'none';
+  document.getElementById('mainWidget').style.display = 'block';
+});
+
+async function classifyProduct() {
+  const description = document.getElementById('product').value;
   const country = document.getElementById('country').value;
   const resultBox = document.getElementById('result');
-  const submitBtn = document.getElementById('submitBtn');
+  const loading = document.getElementById('loading');
 
-  if (!description || description.length < 5) {
-    alert("Please enter a detailed product description.");
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Classifying...";
+  resultBox.innerHTML = '';
+  loading.style.display = 'block';
 
   try {
-    const response = await fetch('https://api.tariffsolver.com/classify', {
+    const response = await fetch('https://tslite-api.onrender.com/classify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description, country })
     });
 
-    const data = await response.json();
-    resultBox.innerHTML = `
-      <h3>Classification Result</h3>
-      <p><strong>HS Code:</strong> ${data.hs_code}</p>
-      <p><strong>Duty Rate:</strong> ${data.duty_rate}%</p>
-      <p><strong>Confidence:</strong> ${data.confidence}%</p>
-    `;
-  } catch (err) {
-    resultBox.innerHTML = "Something went wrong. Please try again.";
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit";
-  }
-});
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
 
-function setExample() {
-  document.getElementById('description').value = "leather hiking boots with rubber soles";
-  document.getElementById('country').value = "US";
+    const data = await response.json();
+    loading.style.display = 'none';
+
+    resultBox.innerHTML = `<strong>Classification result</strong><br>
+      HTS code: ${data.hts_code}<br>
+      Confidence: ${data.confidence}%<br>
+      <em>${explainConfidence(data.confidence)}</em>`;
+  } catch (error) {
+    loading.style.display = 'none';
+    console.error("API call failed:", error);
+    resultBox.innerHTML = '❌ Something went wrong. Please try again.';
+  }
+}
+
+function explainConfidence(confidence) {
+  if (confidence >= 90) return "High confidence – Ready for use.";
+  if (confidence >= 70) return "Medium confidence – Review recommended.";
+  return "Low confidence – Please double check.";
 }
