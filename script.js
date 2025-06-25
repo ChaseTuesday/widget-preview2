@@ -17,7 +17,7 @@ async function classifyProduct() {
   loading.style.display = 'block';
 
   try {
-    const response = await fetch('https://tslite-api.onrender.com/classify', {
+    const response = await fetch('https://tslite-api.onrender.com/calculate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description, country })
