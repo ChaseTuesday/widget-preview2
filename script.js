@@ -16,14 +16,8 @@ async function classifyProduct() {
   try {
     const response = await fetch('https://tslite-api.onrender.com/calculate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        description,
-        country,
-        price: 100 // required by backend
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description, price: 100, country }) // dummy price for model
     });
 
     if (!response.ok) {
@@ -31,10 +25,9 @@ async function classifyProduct() {
     }
 
     const data = await response.json();
-    console.log('✅ API response:', data); // debug
+    console.log('✅ API response:', data); // Dev debug log
 
     loading.style.display = 'none';
-
     resultBox.innerHTML = `
       <strong>Classification result</strong><br>
       HTS code: ${data.hts_code}<br>
@@ -43,12 +36,12 @@ async function classifyProduct() {
       Total Landed Cost: $${data.total_cost}<br>
       Confidence: ${data.confidence}<br>
       <em>${explainConfidence(data.confidence)}</em><br>
-      <br><strong>Rationale:</strong><br>
-      ${data.rationale}
+      <hr>
+      <strong>Rationale:</strong> ${data.rationale}
     `;
   } catch (error) {
     loading.style.display = 'none';
-    console.error('❌ API call failed:', error);
+    console.error('❌ API error:', error);
     resultBox.innerHTML = '❌ Something went wrong. Please try again.';
   }
 }
